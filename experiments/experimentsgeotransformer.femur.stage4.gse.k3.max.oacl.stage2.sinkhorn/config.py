@@ -32,16 +32,21 @@ ensure_dir(_C.registration_dir)
 
 # data
 _C.data = edict()
-_C.data.dataset_root = osp.join(_C.root_dir, 'data', '3DMatch')
+_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
 
 # train data
 _C.train = edict()
 _C.train.batch_size = 1
 _C.train.num_workers = 8
-_C.train.point_limit = 30000
-_C.train.use_augmentation = True
-_C.train.augmentation_noise = 0.005
-_C.train.augmentation_rotation = 1.0
+_C.train.point_limit = None      ####was originally 30000
+
+#_C.train.use_augmentation = True
+#_C.train.augmentation_noise = 0.005
+#_C.train.augmentation_rotation = 1.0
+
+_C.train.use_augmentation = False
+_C.train.augmentation_noise = 0.0
+_C.train.augmentation_rotation = 0.0
 
 # test data
 _C.test = edict()
@@ -76,7 +81,7 @@ _C.optim.grad_acc_steps = 1
 # model - backbone
 _C.backbone = edict()
 _C.backbone.num_stages = 4
-_C.backbone.init_voxel_size = 0.025
+_C.backbone.init_voxel_size = 0.025              ############################
 _C.backbone.kernel_size = 15
 _C.backbone.base_radius = 2.5
 _C.backbone.base_sigma = 2.0
@@ -89,7 +94,7 @@ _C.backbone.output_dim = 256
 
 # model - Global
 _C.model = edict()
-_C.model.ground_truth_matching_radius = 0.05
+_C.model.ground_truth_matching_radius = 0.05                #######################
 _C.model.num_points_in_patch = 64
 _C.model.num_sinkhorn_iterations = 100
 
@@ -115,7 +120,7 @@ _C.geotransformer.reduction_a = 'max'
 # model - Fine Matching
 _C.fine_matching = edict()
 _C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = 0.1
+_C.fine_matching.acceptance_radius = 0.1                    ###################
 _C.fine_matching.mutual = True
 _C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
@@ -135,7 +140,7 @@ _C.coarse_loss.positive_overlap = 0.1
 
 # loss - Fine level
 _C.fine_loss = edict()
-_C.fine_loss.positive_radius = 0.05
+_C.fine_loss.positive_radius = 0.05                 #############################
 
 # loss - Overall
 _C.loss = edict()
