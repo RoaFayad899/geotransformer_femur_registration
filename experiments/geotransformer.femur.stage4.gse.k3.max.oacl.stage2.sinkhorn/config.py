@@ -50,7 +50,7 @@ _C.train.augmentation_rotation = 0.0
 
 # test data
 _C.test = edict()
-_C.test.batch_size = 1
+_C.test.batch_size = 1               ##############
 _C.test.num_workers = 8
 _C.test.point_limit = None
 
@@ -71,11 +71,11 @@ _C.ransac.num_iterations = 1000
 
 # optim
 _C.optim = edict()
-_C.optim.lr = 1e-4
+_C.optim.lr = 1e-4                    ###################
 _C.optim.lr_decay = 0.95
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
-_C.optim.max_epoch = 40
+_C.optim.max_epoch = 1                #################
 _C.optim.grad_acc_steps = 1
 
 # model - backbone
