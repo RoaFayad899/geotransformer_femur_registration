@@ -16,7 +16,7 @@ from loss import Evaluator
 
 def make_parser():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--benchmark', choices=['3DMatch', '3DLoMatch', 'val'], help='test benchmark')
+    parser.add_argument('--benchmark', choices=['test', 'val'], default='test', help='test benchmark')
     return parser
 
 
