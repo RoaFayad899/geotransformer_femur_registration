@@ -98,6 +98,7 @@ class Evaluator(nn.Module):
         self.acceptance_overlap = cfg.eval.acceptance_overlap
         self.acceptance_radius = cfg.eval.acceptance_radius
         self.acceptance_rmse = cfg.eval.rmse_threshold
+        self.normalization_scale_mm = cfg.data.normalization_scale_mm
 
     @torch.no_grad()
     def evaluate_coarse(self, output_dict):
@@ -152,8 +153,14 @@ class Evaluator(nn.Module):
         return {
             'PIR': c_precision,
             'IR': f_precision,
+
             'RRE': rre,
+
             'RTE': rte,
+            'RTE_mm': rte * self.normalization_scale_mm,
+
             'RMSE': rmse,
+            'RMSE_mm': rmse * self.normalization_scale_mm,
+
             'RR': recall,
         }

@@ -12,6 +12,7 @@ _C = edict()
 # common
 _C.seed = 7351
 
+
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
@@ -33,6 +34,20 @@ ensure_dir(_C.registration_dir)
 # data
 _C.data = edict()
 _C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
+
+
+
+
+
+##to put values in mm and still let the model use the normalized values
+_C.data.normalization_scale_mm = 244.0456
+
+def mm_to_norm(mm):
+    return mm / _C.data.normalization_scale_mm
+
+
+
+
 
 # train data
 _C.train = edict()
@@ -57,15 +72,15 @@ _C.test.point_limit = None
 # evaluation
 _C.eval = edict()
 _C.eval.acceptance_overlap = 0.0
-_C.eval.acceptance_radius = 0.1
+_C.eval.acceptance_radius = mm_to_norm(3.0)                  ######################0.1
 _C.eval.inlier_ratio_threshold = 0.05
-_C.eval.rmse_threshold = 0.2
+_C.eval.rmse_threshold = mm_to_norm(2.0)                      ######################0.2
 _C.eval.rre_threshold = 15.0
 _C.eval.rte_threshold = 0.3
 
 # ransac
 _C.ransac = edict()
-_C.ransac.distance_threshold = 0.05
+_C.ransac.distance_threshold = 0.05                           #######################0.05
 _C.ransac.num_points = 3
 _C.ransac.num_iterations = 1000
 
@@ -81,12 +96,12 @@ _C.optim.grad_acc_steps = 1
 # model - backbone
 _C.backbone = edict()
 _C.backbone.num_stages = 4
-_C.backbone.init_voxel_size = 0.025              ############################
+_C.backbone.init_voxel_size = mm_to_norm(6.0)              ############################0.025
 _C.backbone.kernel_size = 15
 _C.backbone.base_radius = 2.5
 _C.backbone.base_sigma = 2.0
-_C.backbone.init_radius = _C.backbone.base_radius * _C.backbone.init_voxel_size
-_C.backbone.init_sigma = _C.backbone.base_sigma * _C.backbone.init_voxel_size
+_C.backbone.init_radius = _C.backbone.base_radius * _C.backbone.init_voxel_size   #############
+_C.backbone.init_sigma = _C.backbone.base_sigma * _C.backbone.init_voxel_size     #############
 _C.backbone.group_norm = 32
 _C.backbone.input_dim = 1
 _C.backbone.init_dim = 64
@@ -94,7 +109,7 @@ _C.backbone.output_dim = 256
 
 # model - Global
 _C.model = edict()
-_C.model.ground_truth_matching_radius = 0.05                #######################
+_C.model.ground_truth_matching_radius = mm_to_norm(6.0)                #######################0.05
 _C.model.num_points_in_patch = 64
 _C.model.num_sinkhorn_iterations = 100
 
@@ -120,7 +135,7 @@ _C.geotransformer.reduction_a = 'max'
 # model - Fine Matching
 _C.fine_matching = edict()
 _C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = 0.1                    ###################
+_C.fine_matching.acceptance_radius = mm_to_norm(5.0)                    ###################0.1
 _C.fine_matching.mutual = True
 _C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
@@ -140,7 +155,7 @@ _C.coarse_loss.positive_overlap = 0.1
 
 # loss - Fine level
 _C.fine_loss = edict()
-_C.fine_loss.positive_radius = 0.05                 #############################
+_C.fine_loss.positive_radius = mm_to_norm(4.0)                 #############################0.05
 
 # loss - Overall
 _C.loss = edict()
