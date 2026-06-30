@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = osp.basename(_C.working_dir)
+_C.exp_name = "exp_test_001"                                                        ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -109,7 +109,7 @@ _C.backbone.output_dim = 256
 
 # model - Global
 _C.model = edict()
-_C.model.ground_truth_matching_radius = mm_to_norm(6.0)                #######################0.05
+_C.model.ground_truth_matching_radius = mm_to_norm(12.0)                #######################0.05
 _C.model.num_points_in_patch = 64
 _C.model.num_sinkhorn_iterations = 100
 
@@ -135,7 +135,7 @@ _C.geotransformer.reduction_a = 'max'
 # model - Fine Matching
 _C.fine_matching = edict()
 _C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = mm_to_norm(5.0)                    ###################0.1
+_C.fine_matching.acceptance_radius = mm_to_norm(12.0)                    ###################0.1
 _C.fine_matching.mutual = True
 _C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
@@ -155,7 +155,7 @@ _C.coarse_loss.positive_overlap = 0.1
 
 # loss - Fine level
 _C.fine_loss = edict()
-_C.fine_loss.positive_radius = mm_to_norm(4.0)                 #############################0.05
+_C.fine_loss.positive_radius = mm_to_norm(10.0)                 #############################0.05
 
 # loss - Overall
 _C.loss = edict()
