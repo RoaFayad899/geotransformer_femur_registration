@@ -99,6 +99,8 @@ class Evaluator(nn.Module):
         self.acceptance_radius = cfg.eval.acceptance_radius
         self.acceptance_rmse = cfg.eval.rmse_threshold
         self.normalization_scale_mm = cfg.data.normalization_scale_mm
+        self.ir_thresholds_mm = cfg.eval.ir_thresholds_mm
+        self.ir_thresholds = cfg.eval.ir_thresholds
 
     @torch.no_grad()
     def evaluate_coarse(self, output_dict):
@@ -120,15 +122,34 @@ class Evaluator(nn.Module):
 
         return precision
 
+    # @torch.no_grad()
+    # def evaluate_fine(self, output_dict, data_dict):
+    #     transform = data_dict['transform']
+    #     ref_corr_points = output_dict['ref_corr_points']
+    #     src_corr_points = output_dict['src_corr_points']
+    #     src_corr_points = apply_transform(src_corr_points, transform)
+    #     corr_distances = torch.linalg.norm(ref_corr_points - src_corr_points, dim=1)
+    #     precision = torch.lt(corr_distances, self.acceptance_radius).float().mean()
+    #     return precision
+
     @torch.no_grad()
     def evaluate_fine(self, output_dict, data_dict):
         transform = data_dict['transform']
         ref_corr_points = output_dict['ref_corr_points']
         src_corr_points = output_dict['src_corr_points']
+
         src_corr_points = apply_transform(src_corr_points, transform)
         corr_distances = torch.linalg.norm(ref_corr_points - src_corr_points, dim=1)
+
         precision = torch.lt(corr_distances, self.acceptance_radius).float().mean()
-        return precision
+
+        ir_dict = {}
+        for threshold_mm, threshold in zip(self.ir_thresholds_mm, self.ir_thresholds):
+            key = f'IR@{int(threshold_mm)}mm'
+            ir_dict[key] = torch.lt(corr_distances, threshold).float().mean()
+
+        return precision, ir_dict
+
 
     @torch.no_grad()
     def evaluate_registration(self, output_dict, data_dict):
@@ -147,20 +168,35 @@ class Evaluator(nn.Module):
 
     def forward(self, output_dict, data_dict):
         c_precision = self.evaluate_coarse(output_dict)
-        f_precision = self.evaluate_fine(output_dict, data_dict)
+        #f_precision = self.evaluate_fine(output_dict, data_dict)
+        f_precision, ir_dict = self.evaluate_fine(output_dict, data_dict)
         rre, rte, rmse, recall = self.evaluate_registration(output_dict, data_dict)
 
-        return {
+        result_dict = {
             'PIR': c_precision,
             'IR': f_precision,
-
             'RRE': rre,
-
             'RTE': rte,
             'RTE_mm': rte * self.normalization_scale_mm,
-
             'RMSE': rmse,
             'RMSE_mm': rmse * self.normalization_scale_mm,
-
             'RR': recall,
         }
+
+        result_dict.update(ir_dict)
+        return result_dict
+
+        # return {
+        #     'PIR': c_precision,
+        #     'IR': f_precision,
+        #
+        #     'RRE': rre,
+        #
+        #     'RTE': rte,
+        #     'RTE_mm': rte * self.normalization_scale_mm,
+        #
+        #     'RMSE': rmse,
+        #     'RMSE_mm': rmse * self.normalization_scale_mm,
+        #
+        #     'RR': recall,
+        # }

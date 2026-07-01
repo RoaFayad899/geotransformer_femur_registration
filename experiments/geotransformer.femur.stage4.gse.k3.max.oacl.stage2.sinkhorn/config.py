@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_001"                                                        ###############################
+_C.exp_name = "exp_test_002"                                                        ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -77,6 +77,23 @@ _C.eval.inlier_ratio_threshold = 0.05
 _C.eval.rmse_threshold = mm_to_norm(2.0)                      ######################0.2
 _C.eval.rre_threshold = 15.0
 _C.eval.rte_threshold = 0.3
+
+
+
+
+
+########################################################################################################################
+# -------------------------------------------------------
+# Additional IR thresholds (for analysis only)
+# These are NOT used for training.
+# They are used to report IR at multiple distance thresholds.
+# -------------------------------------------------------
+_C.eval.ir_thresholds_mm = [18.0, 12.0, 6.0, 3.0]
+_C.eval.ir_thresholds = [
+    mm_to_norm(mm) for mm in _C.eval.ir_thresholds_mm
+]
+########################################################################################################################
+
 
 # ransac
 _C.ransac = edict()
@@ -155,7 +172,7 @@ _C.coarse_loss.positive_overlap = 0.1
 
 # loss - Fine level
 _C.fine_loss = edict()
-_C.fine_loss.positive_radius = mm_to_norm(10.0)                 #############################0.05
+_C.fine_loss.positive_radius = mm_to_norm(6.0)                 #############################0.05
 
 # loss - Overall
 _C.loss = edict()
