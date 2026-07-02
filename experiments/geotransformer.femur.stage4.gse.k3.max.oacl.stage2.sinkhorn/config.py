@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_overfit2000_noaugmentation_lrconstant"                                                         ###############################
+_C.exp_name = "exp_test_overfit2000_noaugmentation_lrconstantless"                                                         ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -103,7 +103,7 @@ _C.ransac.num_iterations = 1000
 
 # optim
 _C.optim = edict()
-_C.optim.lr = 1e-4                    ###################
+_C.optim.lr = 5e-4                    ###################
 _C.optim.lr_decay = 1.0              ###################
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
