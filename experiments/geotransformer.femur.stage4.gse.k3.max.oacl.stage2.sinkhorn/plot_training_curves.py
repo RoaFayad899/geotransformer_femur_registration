@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-LOG_DIR = "../../output/exp_test_overfit2000_noaugmentation_lrconstantless/logs"  #########################
+LOG_DIR = "../../output/exp_test_overfit2000_noaugmentation_lrconstant_2/logs"  #########################
 
 log_files = glob.glob(os.path.join(LOG_DIR, "*.log"))
 if not log_files:
