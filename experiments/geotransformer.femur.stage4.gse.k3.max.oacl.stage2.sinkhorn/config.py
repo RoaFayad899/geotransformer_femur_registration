@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_004"                                                        ###############################
+_C.exp_name = "exp_test_overfit300_noaugmentation"                                                        ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -33,8 +33,8 @@ ensure_dir(_C.registration_dir)
 
 # data
 _C.data = edict()
-_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
-
+_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur_overfit')                  #################################
+#_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
 
 
 
@@ -51,7 +51,7 @@ def mm_to_norm(mm):
 
 # train data
 _C.train = edict()
-_C.train.batch_size = 1
+_C.train.batch_size = 1                                #############
 _C.train.num_workers = 8
 _C.train.point_limit = None                            ####was originally 30000
 
@@ -107,7 +107,7 @@ _C.optim.lr = 1e-4                    ###################
 _C.optim.lr_decay = 0.95
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
-_C.optim.max_epoch = 40                #################
+_C.optim.max_epoch = 300                #################
 _C.optim.grad_acc_steps = 1
 
 # model - backbone
