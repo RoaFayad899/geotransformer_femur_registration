@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_overfit2000_noaugmentation_lrconstant_2"                                                         ###############################
+_C.exp_name = "exp_test_overfit1_noaugmentation_lrconstant_2"                                                         ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -107,7 +107,7 @@ _C.optim.lr = 1e-4                    ###################
 _C.optim.lr_decay = 1.0              ###################
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
-_C.optim.max_epoch = 2000                #################
+_C.optim.max_epoch = 1                #################
 _C.optim.grad_acc_steps = 1
 
 # model - backbone
@@ -152,7 +152,7 @@ _C.geotransformer.reduction_a = 'max'
 # model - Fine Matching
 _C.fine_matching = edict()
 _C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = mm_to_norm(6.0)                    ###################0.1, 12.0
+_C.fine_matching.acceptance_radius = mm_to_norm(12.0)                    ###################0.1, 12.0
 _C.fine_matching.mutual = True
 _C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
@@ -172,7 +172,7 @@ _C.coarse_loss.positive_overlap = 0.1
 
 # loss - Fine level
 _C.fine_loss = edict()
-_C.fine_loss.positive_radius = mm_to_norm(3.0)                 #############################0.05, 6.0
+_C.fine_loss.positive_radius = mm_to_norm(6.0)                 #############################0.05, 6.0
 
 # loss - Overall
 _C.loss = edict()
