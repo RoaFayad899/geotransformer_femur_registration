@@ -73,6 +73,24 @@ class GeoTransformer(nn.Module):
         feats = data_dict['features'].detach()
         transform = data_dict['transform'].detach()
 
+
+        if self.training:                                                                           ####################
+            print("\n========== KPConv Stages ==========")
+            for i, pts in enumerate(data_dict['points']):
+                ref_len = data_dict['lengths'][i][0].item()
+                src_len = pts.shape[0] - ref_len
+
+                print(
+                    f"Stage {i}: "
+                    f"Ref = {ref_len:5d}, "
+                    f"Src = {src_len:5d}, "
+                    f"Ratio = {src_len / ref_len:.3f}"
+                )
+            print("===================================\n", flush=True)                              ####################
+
+
+
+
         ref_length_c = data_dict['lengths'][-1][0].item()
         ref_length_f = data_dict['lengths'][1][0].item()
         ref_length = data_dict['lengths'][0][0].item()
