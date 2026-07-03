@@ -87,10 +87,12 @@ class GeoTransformer(nn.Module):
         ref_points = points[:ref_length]
         src_points = points[ref_length:]
 
-        # --------------------------------------------------------                       ###############################
-        # DEBUG: Number of points at each resolution
-        # --------------------------------------------------------
-        if self.training:
+        def mean_nn_distance(points):
+            dists = torch.cdist(points, points)
+            dists.fill_diagonal_(1e9)
+            return dists.min(dim=1)[0].mean()
+
+        if self.training:                                                                       ########################
             print("\n========== POINT STATISTICS ==========")
             print(f"Reference raw points   : {ref_points.shape[0]}")
             print(f"Source raw points      : {src_points.shape[0]}")
@@ -98,7 +100,11 @@ class GeoTransformer(nn.Module):
             print(f"Source fine points     : {src_points_f.shape[0]}")
             print(f"Reference coarse nodes : {ref_points_c.shape[0]}")
             print(f"Source coarse nodes    : {src_points_c.shape[0]}")
-            print("======================================\n", flush=True)
+
+            print(f"Reference coarse NN distance : {mean_nn_distance(ref_points_c):.3f}")
+            print(f"Source coarse NN distance    : {mean_nn_distance(src_points_c):.3f}")
+
+            print("======================================\n", flush=True)                      #########################
 
         output_dict['ref_points_c'] = ref_points_c
         output_dict['src_points_c'] = src_points_c
@@ -106,6 +112,8 @@ class GeoTransformer(nn.Module):
         output_dict['src_points_f'] = src_points_f
         output_dict['ref_points'] = ref_points
         output_dict['src_points'] = src_points
+
+
 
         # 1. Generate ground truth node correspondences
         _, ref_node_masks, ref_node_knn_indices, ref_node_knn_masks = point_to_node_partition(
@@ -180,15 +188,6 @@ class GeoTransformer(nn.Module):
             ref_node_corr_indices, src_node_corr_indices, node_corr_scores = self.coarse_matching(
                 ref_feats_c_norm, src_feats_c_norm, ref_node_masks, src_node_masks
             )
-
-            print(                                                                                  ####################
-                "[DEBUG SELECTED GT]",
-                "selected_pairs:",
-                ref_node_corr_indices.shape[0],
-                flush=True,
-            )                                                                                       ####################
-
-
             output_dict['ref_node_corr_indices'] = ref_node_corr_indices
             output_dict['src_node_corr_indices'] = src_node_corr_indices
 
@@ -197,6 +196,13 @@ class GeoTransformer(nn.Module):
                 ref_node_corr_indices, src_node_corr_indices, node_corr_scores = self.coarse_target(
                     gt_node_corr_indices, gt_node_corr_overlaps
                 )
+
+                print(                                                                              ####################
+                    "[DEBUG SELECTED GT]",
+                    "selected_pairs:",
+                    ref_node_corr_indices.shape[0],
+                    flush=True,
+                )                                                                                   ####################
 
         # 7.2 Generate batched node points & feats
         ref_node_corr_knn_indices = ref_node_knn_indices[ref_node_corr_indices]  # (P, K)
