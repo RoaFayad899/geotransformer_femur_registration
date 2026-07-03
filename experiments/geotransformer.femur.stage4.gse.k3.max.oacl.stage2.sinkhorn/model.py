@@ -159,7 +159,7 @@ class GeoTransformer(nn.Module):
             src_knn_masks=src_node_knn_masks,
         )
 
-        if self.training:                                                                                               ################################
+        if self.training:                                                                                               #################################
             print(
                 "[DEBUG GT COARSE]",
                 "num_corr:", gt_node_corr_indices.shape[0],
@@ -169,7 +169,21 @@ class GeoTransformer(nn.Module):
                 gt_node_corr_overlaps.max().item() if gt_node_corr_overlaps.numel() > 0 else None,
                 "overlap_min:",
                 gt_node_corr_overlaps.min().item() if gt_node_corr_overlaps.numel() > 0 else None,
-            )                                                                                                           ################################
+            )
+
+            print(
+                "[DEBUG GT LABELS]",
+                "Positive (>0.1):",
+                (gt_node_corr_overlaps > self.coarse_target.overlap_threshold).sum().item(),
+                "Ignored (0-0.1]:",
+                (
+                        (gt_node_corr_overlaps > 0.0)
+                        & (gt_node_corr_overlaps <= self.coarse_target.overlap_threshold)
+                ).sum().item(),
+                "Threshold:",
+                self.coarse_target.overlap_threshold,
+                flush=True,
+            )                                                                                                          ################################
 
         output_dict['gt_node_corr_indices'] = gt_node_corr_indices
         output_dict['gt_node_corr_overlaps'] = gt_node_corr_overlaps
