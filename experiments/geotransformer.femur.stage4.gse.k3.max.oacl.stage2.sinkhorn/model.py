@@ -87,6 +87,19 @@ class GeoTransformer(nn.Module):
         ref_points = points[:ref_length]
         src_points = points[ref_length:]
 
+        # --------------------------------------------------------                       ###############################
+        # DEBUG: Number of points at each resolution
+        # --------------------------------------------------------
+        if self.training:
+            print("\n========== POINT STATISTICS ==========")
+            print(f"Reference raw points   : {ref_points.shape[0]}")
+            print(f"Source raw points      : {src_points.shape[0]}")
+            print(f"Reference fine points  : {ref_points_f.shape[0]}")
+            print(f"Source fine points     : {src_points_f.shape[0]}")
+            print(f"Reference coarse nodes : {ref_points_c.shape[0]}")
+            print(f"Source coarse nodes    : {src_points_c.shape[0]}")
+            print("======================================\n", flush=True)
+
         output_dict['ref_points_c'] = ref_points_c
         output_dict['src_points_c'] = src_points_c
         output_dict['ref_points_f'] = ref_points_f
@@ -167,6 +180,14 @@ class GeoTransformer(nn.Module):
             ref_node_corr_indices, src_node_corr_indices, node_corr_scores = self.coarse_matching(
                 ref_feats_c_norm, src_feats_c_norm, ref_node_masks, src_node_masks
             )
+
+            print(                                                                                  ####################
+                "[DEBUG SELECTED GT]",
+                "selected_pairs:",
+                ref_node_corr_indices.shape[0],
+                flush=True,
+            )                                                                                       ####################
+
 
             output_dict['ref_node_corr_indices'] = ref_node_corr_indices
             output_dict['src_node_corr_indices'] = src_node_corr_indices
