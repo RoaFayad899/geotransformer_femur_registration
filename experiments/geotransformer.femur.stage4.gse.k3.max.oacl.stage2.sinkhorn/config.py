@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_overfit1_noaugmentation_lrconst_05"                                                         ###############################
+_C.exp_name = "exp_test_overfit1_noaugmentation_lrconst_06"                                                         ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -112,11 +112,11 @@ _C.optim.grad_acc_steps = 1
 
 # model - backbone
 _C.backbone = edict()
-_C.backbone.num_stages = 4                                 ############################4
+_C.backbone.num_stages = 4                                 ############################4, 3
 _C.backbone.init_voxel_size = mm_to_norm(3.0)              ############################0.025
-_C.backbone.kernel_size = 20                               ############################15
-_C.backbone.base_radius = 4                                ############################2.5
-_C.backbone.base_sigma = 2.5                               ############################2.0
+_C.backbone.kernel_size = 15                               ############################15, 20
+_C.backbone.base_radius = 2.5                                ############################2.5, 4
+_C.backbone.base_sigma = 2.0                               ############################2.0, 2.5
 _C.backbone.init_radius = _C.backbone.base_radius * _C.backbone.init_voxel_size   #############
 _C.backbone.init_sigma = _C.backbone.base_sigma * _C.backbone.init_voxel_size     #############
 _C.backbone.group_norm = 32
@@ -127,7 +127,7 @@ _C.backbone.output_dim = 256
 # model - Global
 _C.model = edict()
 _C.model.ground_truth_matching_radius = mm_to_norm(6.0)                #######################0.05
-_C.model.num_points_in_patch = 128                                      #######################64
+_C.model.num_points_in_patch = 64                                      #######################64
 _C.model.num_sinkhorn_iterations = 100
 
 # model - Coarse Matching
