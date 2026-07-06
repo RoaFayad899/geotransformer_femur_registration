@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_overfit1_noaugmentation_lrconst_09"                                                         ###############################
+_C.exp_name = "exp_test_overfit1_noaugmentation_lrconst_10"                                                         ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -132,7 +132,7 @@ _C.model.num_sinkhorn_iterations = 100
 
 # model - Coarse Matching
 _C.coarse_matching = edict()
-_C.coarse_matching.num_targets = 256                                     #######################128
+_C.coarse_matching.num_targets = 1024                                     #######################128, 256, 512, 1024
 _C.coarse_matching.overlap_threshold = 0.1
 _C.coarse_matching.num_correspondences = 256
 _C.coarse_matching.dual_normalization = True
