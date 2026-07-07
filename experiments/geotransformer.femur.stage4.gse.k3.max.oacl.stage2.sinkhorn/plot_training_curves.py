@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-LOG_FILE = "../../output/exp_test_overfit1_noaugmentation_lrconst_08/logs/train-20260706-144845.log"  ##########################
+LOG_FILE = "../../output/exp_test_overfit1_noaugmentation_lrconst_08/logs/train-20260706-143028.log"  ##########################
 
 LOG_DIR = os.path.dirname(LOG_FILE)
 
