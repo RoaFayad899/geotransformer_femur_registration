@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-LOG_DIR = "../../output/exp_test_overfit1_noaugmentation_lrconst_12/logs"     #############################
+LOG_DIR = "../../output/exp_test_overfit1_noaugmentation_lrconst_13/logs"     #############################
 
 csv_path = os.path.join(LOG_DIR, "parsed_metrics.csv")
 if not os.path.exists(csv_path):
