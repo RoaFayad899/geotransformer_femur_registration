@@ -112,7 +112,7 @@ _C.optim.grad_acc_steps = 1
 
 # model - backbone
 _C.backbone = edict()
-_C.backbone.num_stages = 3                                 ############################4, 3
+_C.backbone.num_stages = 4                                 ############################4, 3
 _C.backbone.init_voxel_size = mm_to_norm(3.0)              ############################0.025
 _C.backbone.kernel_size = 20                               ############################15, 20
 _C.backbone.base_radius = 4                                ############################2.5, 4
@@ -132,14 +132,14 @@ _C.model.num_sinkhorn_iterations = 100
 
 # model - Coarse Matching
 _C.coarse_matching = edict()
-_C.coarse_matching.num_targets = 738                                     #######################128, 256, 512, 1024
+_C.coarse_matching.num_targets = 256                                     #######################128, 256, 512, 1024
 _C.coarse_matching.overlap_threshold = 0.1
 _C.coarse_matching.num_correspondences = 256
 _C.coarse_matching.dual_normalization = True
 
 # model - GeoTransformer
 _C.geotransformer = edict()
-_C.geotransformer.input_dim = 512                                      ########################512, 1024 for 4 stages
+_C.geotransformer.input_dim = 1024                                      ########################512, 1024 for 4 stages
 _C.geotransformer.hidden_dim = 256
 _C.geotransformer.output_dim = 256
 _C.geotransformer.num_heads = 4
