@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_fulldataset_best4stages_2000_medium_00"                                ###############################
+_C.exp_name = "exp_fulldataset_best4stages_2000_large_00"                                ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -36,7 +36,7 @@ _C.data = edict()
 _C.data.dataset_root = osp.join(
     _C.root_dir,
     "data",
-    "geotransformer_dataset_partial_to_full_femur_2000_medium")                                ################################
+    "geotransformer_dataset_partial_to_full_femur_2000_large")                                ################################
 
 #_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
 
