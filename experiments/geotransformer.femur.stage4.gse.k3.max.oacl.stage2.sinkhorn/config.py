@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_test_overfit1_noaugmentation_lrconst_13"                                                         ###############################
+_C.exp_name = "exp_fulldataset_best4stages_2000_small_00"                                ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -33,7 +33,11 @@ ensure_dir(_C.registration_dir)
 
 # data
 _C.data = edict()
-_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur_overfit')                  #################################
+_C.data.dataset_root = osp.join(
+    _C.root_dir,
+    "data",
+    "geotransformer_dataset_partial_to_full_femur_2000_small")                                ################################
+
 #_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
 
 
@@ -107,7 +111,7 @@ _C.optim.lr = 1e-4                    ###################
 _C.optim.lr_decay = 1.0              ###################
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
-_C.optim.max_epoch = 500                #################
+_C.optim.max_epoch = 300                #################
 _C.optim.grad_acc_steps = 1
 
 # model - backbone
