@@ -166,10 +166,10 @@ _C.fine_matching.correspondence_limit = None
 _C.fine_matching.num_refinement_steps = 5
 
 
-_C.fine_matching.topk = 10
-_C.fine_matching.acceptance_radius = mm_to_norm(9.0)
-_C.fine_matching.mutual = False
-_C.fine_matching.confidence_threshold = 0.0
+_C.fine_matching.topk = 5
+_C.fine_matching.acceptance_radius = mm_to_norm(6.0)
+_C.fine_matching.mutual = True
+_C.fine_matching.confidence_threshold = 0.01
 _C.fine_matching.correspondence_threshold = 3
 
 
