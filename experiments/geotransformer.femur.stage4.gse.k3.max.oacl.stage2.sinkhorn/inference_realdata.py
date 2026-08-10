@@ -22,7 +22,7 @@ from model import create_model
 # ============================================================
 
 INFERENCE_DATASET_NAME = (
-    "geotransformer_dataset_inference_USProximaltoCT"
+    "geotransformer_dataset_inference_USProximaltoCTComplete"
 )
 
 EXPERIMENT_NAME = (
