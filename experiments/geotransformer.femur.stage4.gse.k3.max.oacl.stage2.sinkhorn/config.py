@@ -155,15 +155,23 @@ _C.geotransformer.reduction_a = 'max'
 
 # model - Fine Matching
 _C.fine_matching = edict()
-_C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = mm_to_norm(6.0)                    ###################0.1, 12.0
-_C.fine_matching.mutual = True
-_C.fine_matching.confidence_threshold = 0.05
+#_C.fine_matching.topk = 3
+#_C.fine_matching.acceptance_radius = mm_to_norm(6.0)                    ###################0.1, 12.0
+#_C.fine_matching.mutual = True
+#_C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
 _C.fine_matching.use_global_score = False
-_C.fine_matching.correspondence_threshold = 3
+#_C.fine_matching.correspondence_threshold = 3
 _C.fine_matching.correspondence_limit = None
 _C.fine_matching.num_refinement_steps = 5
+
+
+_C.fine_matching.topk = 10
+_C.fine_matching.acceptance_radius = mm_to_norm(9.0)
+_C.fine_matching.mutual = False
+_C.fine_matching.confidence_threshold = 0.0
+_C.fine_matching.correspondence_threshold = 3
+
 
 # loss - Coarse level
 _C.coarse_loss = edict()
