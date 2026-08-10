@@ -1091,19 +1091,10 @@ def main():
         # Number of final correspondences
         # ----------------------------------------------------
 
-        if (
-            "corr_scores"
-            in output_dict
-        ):
-
-            num_corr = len(
-                output_dict[
-                    "corr_scores"
-                ]
-            )
-
+        if "corr_scores" in output_dict:
+            corr_scores_array = np.asarray(output_dict["corr_scores"])
+            num_corr = 1 if corr_scores_array.ndim == 0 else corr_scores_array.shape[0]
         else:
-
             num_corr = 0
 
         # ====================================================
