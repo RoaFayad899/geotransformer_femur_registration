@@ -1029,6 +1029,27 @@ def main():
                 data_dict
             )
         )
+        # ====================================================
+        # DEBUG: COARSE vs FINE CORRESPONDENCES
+        # ====================================================
+
+        num_coarse_corr = len(
+            np.asarray(
+                output_dict["ref_node_corr_indices"]
+            ).reshape(-1)
+        )
+
+        corr_scores_array = np.asarray(
+            output_dict["corr_scores"]
+        )
+
+        if corr_scores_array.ndim == 0:
+            num_fine_corr = 1
+        else:
+            num_fine_corr = corr_scores_array.shape[0]
+
+        print(f"Coarse correspondences : {num_coarse_corr}")
+        print(f"Fine correspondences   : {num_fine_corr}")
 
         # ----------------------------------------------------
         # Predicted transform
@@ -1770,20 +1791,3 @@ if __name__ == "__main__":
     main()
 
 
-# ----------------------------------------------------
-# DEBUG CORRESPONDENCES
-# ----------------------------------------------------
-
-num_coarse_corr = len(
-    np.asarray(output_dict["ref_node_corr_indices"]).reshape(-1)
-)
-
-corr_scores_array = np.asarray(output_dict["corr_scores"])
-
-if corr_scores_array.ndim == 0:
-    num_fine_corr = 1
-else:
-    num_fine_corr = corr_scores_array.shape[0]
-
-print(f"Coarse correspondences : {num_coarse_corr}")
-print(f"Fine correspondences   : {num_fine_corr}")
