@@ -166,8 +166,8 @@ _C.fine_matching = edict()
 #_C.fine_matching.num_refinement_steps = 5
 
 
-_C.fine_matching.topk = 3
-_C.fine_matching.acceptance_radius = mm_to_norm(6.0)
+_C.fine_matching.topk = 5
+_C.fine_matching.acceptance_radius = mm_to_norm(7.0)
 _C.fine_matching.mutual = False
 _C.fine_matching.confidence_threshold = 0.01
 _C.fine_matching.use_dustbin = False
