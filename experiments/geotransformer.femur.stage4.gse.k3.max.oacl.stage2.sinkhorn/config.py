@@ -16,7 +16,7 @@ _C.seed = 7351
 # dirs
 _C.working_dir = osp.dirname(osp.realpath(__file__))
 _C.root_dir = osp.dirname(osp.dirname(_C.working_dir))
-_C.exp_name = "exp_fulldataset_best4stages_2000_small_01"                                ###############################
+_C.exp_name = "exp_fulldataset_best4stages_2000_large_new_01"                                ###############################
 _C.output_dir = osp.join(_C.root_dir, 'output', _C.exp_name)
 _C.snapshot_dir = osp.join(_C.output_dir, 'snapshots')
 _C.log_dir = osp.join(_C.output_dir, 'logs')
@@ -36,7 +36,7 @@ _C.data = edict()
 _C.data.dataset_root = osp.join(
     _C.root_dir,
     "data",
-    "geotransformer_dataset_partial_to_full_femur_2000_small")                                ################################
+    "geotransformer_dataset_USlike_partial_to_full_femur_4000_large")                                ################################
 
 #_C.data.dataset_root = osp.join(_C.root_dir, 'data', 'Femur')
 
@@ -111,7 +111,7 @@ _C.optim.lr = 1e-4                    ###################
 _C.optim.lr_decay = 1.0              ###################
 _C.optim.lr_decay_steps = 1
 _C.optim.weight_decay = 1e-6
-_C.optim.max_epoch = 300                #################
+_C.optim.max_epoch = 1                #################
 _C.optim.grad_acc_steps = 1
 
 # model - backbone
@@ -155,26 +155,26 @@ _C.geotransformer.reduction_a = 'max'
 
 # model - Fine Matching
 _C.fine_matching = edict()
-#_C.fine_matching.topk = 3
-#_C.fine_matching.acceptance_radius = mm_to_norm(6.0)                    ###################0.1, 12.0
-#_C.fine_matching.mutual = True
-#_C.fine_matching.confidence_threshold = 0.05
-#_C.fine_matching.use_dustbin = False
-#_C.fine_matching.use_global_score = False
-#_C.fine_matching.correspondence_threshold = 3
-#_C.fine_matching.correspondence_limit = None
-#_C.fine_matching.num_refinement_steps = 5
-
-
-_C.fine_matching.topk = 10
-_C.fine_matching.acceptance_radius = mm_to_norm(7.0)
-_C.fine_matching.mutual = False
-_C.fine_matching.confidence_threshold = 0.001
+_C.fine_matching.topk = 3
+_C.fine_matching.acceptance_radius = mm_to_norm(6.0)                    ###################0.1, 12.0
+_C.fine_matching.mutual = True
+_C.fine_matching.confidence_threshold = 0.05
 _C.fine_matching.use_dustbin = False
 _C.fine_matching.use_global_score = False
 _C.fine_matching.correspondence_threshold = 3
-_C.fine_matching.correspondence_limit = 500
+_C.fine_matching.correspondence_limit = None
 _C.fine_matching.num_refinement_steps = 5
+
+
+# _C.fine_matching.topk = 10
+# _C.fine_matching.acceptance_radius = mm_to_norm(7.0)
+# _C.fine_matching.mutual = False
+# _C.fine_matching.confidence_threshold = 0.001
+# _C.fine_matching.use_dustbin = False
+# _C.fine_matching.use_global_score = False
+# _C.fine_matching.correspondence_threshold = 3
+# _C.fine_matching.correspondence_limit = 500
+# _C.fine_matching.num_refinement_steps = 5
 
 
 # loss - Coarse level
