@@ -145,6 +145,126 @@ NEIGHBOR_LIMITS = [
     61,
 ]
 
+def pointcloud_to_mesh(points):
+
+    points = np.asarray(
+        points,
+        dtype=np.float64,
+    )
+
+    pcd = o3d.geometry.PointCloud()
+
+    pcd.points = (
+        o3d.utility.Vector3dVector(
+            points
+        )
+    )
+
+    # Estimate normals
+    pcd.estimate_normals(
+        search_param=(
+            o3d.geometry.KDTreeSearchParamHybrid(
+                radius=0.05,
+                max_nn=30,
+            )
+        )
+    )
+
+    pcd.orient_normals_consistent_tangent_plane(
+        30
+    )
+
+    mesh, densities = (
+        o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(
+            pcd,
+            depth=8,
+        )
+    )
+
+    # Crop Poisson mesh to the point-cloud bounding box
+    bbox = pcd.get_axis_aligned_bounding_box()
+
+    mesh = mesh.crop(
+        bbox
+    )
+
+    mesh.compute_vertex_normals()
+
+    return mesh
+def visualize_registration_as_mesh(
+    source,
+    target,
+    T_pred,
+    case_name,
+):
+
+    source = np.asarray(
+        source,
+        dtype=np.float64,
+    )
+
+    target = np.asarray(
+        target,
+        dtype=np.float64,
+    )
+
+    # Apply predicted transform to US source
+    predicted_source = apply_transform_np(
+        source,
+        T_pred,
+    )
+
+    print(
+        f"\nCreating meshes for case: "
+        f"{case_name}"
+    )
+
+    # --------------------------------------------------------
+    # CT TARGET MESH
+    # --------------------------------------------------------
+
+    target_mesh = pointcloud_to_mesh(
+        target
+    )
+
+    target_mesh.paint_uniform_color(
+        [
+            0.75,
+            0.75,
+            0.75,
+        ]
+    )
+
+    # --------------------------------------------------------
+    # PREDICTED US MESH
+    # --------------------------------------------------------
+
+    predicted_mesh = pointcloud_to_mesh(
+        predicted_source
+    )
+
+    predicted_mesh.paint_uniform_color(
+        [
+            0.10,
+            0.85,
+            0.10,
+        ]
+    )
+
+    # --------------------------------------------------------
+    # OPEN WINDOW
+    # --------------------------------------------------------
+
+    o3d.visualization.draw_geometries(
+        [
+            target_mesh,
+            predicted_mesh,
+        ],
+        window_name=case_name,
+        width=1200,
+        height=900,
+        mesh_show_back_face=True,
+    )
 
 # ============================================================
 # CHECKPOINT
@@ -1130,6 +1250,17 @@ def main():
             ].astype(
                 np.float64
             )
+        )
+
+        # ====================================================
+        # VISUALIZE THIS CASE AS MESH
+        # ====================================================
+
+        visualize_registration_as_mesh(
+            source=sample["source"],
+            target=sample["target"],
+            T_pred=T_pred,
+            case_name=sample["case_name"],
         )
 
 
