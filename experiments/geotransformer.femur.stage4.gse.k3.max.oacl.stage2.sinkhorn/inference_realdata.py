@@ -139,11 +139,22 @@ PNG_DIR = os.path.join(
     "visualizations",
 )
 
+
+
 os.makedirs(
     PNG_DIR,
     exist_ok=True,
 )
 
+THREED_DIR = os.path.join(
+    RESULT_DIR,
+    "3D_visualizations",
+)
+
+os.makedirs(
+    THREED_DIR,
+    exist_ok=True,
+)
 # ============================================================
 # KPConv NEIGHBOR LIMITS
 # ============================================================
@@ -1174,6 +1185,89 @@ def save_registration_png(
         f"Saved visualization: "
         f"{output_path}"
     )
+
+
+def save_registration_3d(
+    source,
+    target,
+    T_pred,
+    case_name,
+    output_dir,
+):
+
+    case_dir = os.path.join(
+        output_dir,
+        case_name,
+    )
+
+    os.makedirs(
+        case_dir,
+        exist_ok=True,
+    )
+
+    source = np.asarray(
+        source,
+        dtype=np.float64,
+    )
+
+    target = np.asarray(
+        target,
+        dtype=np.float64,
+    )
+
+    # Apply predicted GeoTransformer transform
+    predicted_source = apply_transform_np(
+        source,
+        T_pred,
+    )
+
+    # -------------------------------
+    # CT target
+    # -------------------------------
+
+    ct_pcd = o3d.geometry.PointCloud()
+
+    ct_pcd.points = (
+        o3d.utility.Vector3dVector(
+            target
+        )
+    )
+
+    ct_path = os.path.join(
+        case_dir,
+        "CT_target.ply",
+    )
+
+    o3d.io.write_point_cloud(
+        ct_path,
+        ct_pcd,
+    )
+
+    # -------------------------------
+    # US after prediction
+    # -------------------------------
+
+    us_pcd = o3d.geometry.PointCloud()
+
+    us_pcd.points = (
+        o3d.utility.Vector3dVector(
+            predicted_source
+        )
+    )
+
+    us_path = os.path.join(
+        case_dir,
+        "US_after_Tpred.ply",
+    )
+
+    o3d.io.write_point_cloud(
+        us_path,
+        us_pcd,
+    )
+
+    print(
+        f"Saved 3D registration: {case_dir}"
+    )
 # ============================================================
 # MAIN
 # ============================================================
@@ -1430,6 +1524,14 @@ def main():
             ].astype(
                 np.float64
             )
+        )
+
+        save_registration_3d(
+            source=sample["source"],
+            target=sample["target"],
+            T_pred=T_pred,
+            case_name=sample["case_name"],
+            output_dir=THREED_DIR,
         )
         # ====================================================
         # SAVE VISUALIZATION OF THIS CASE
