@@ -130,6 +130,19 @@ os.makedirs(
     exist_ok=True,
 )
 
+# ============================================================
+# PNG VISUALIZATION DIRECTORY
+# ============================================================
+
+PNG_DIR = os.path.join(
+    RESULT_DIR,
+    "visualizations",
+)
+
+os.makedirs(
+    PNG_DIR,
+    exist_ok=True,
+)
 
 # ============================================================
 # KPConv NEIGHBOR LIMITS
@@ -992,7 +1005,175 @@ def visualize_registration(
 
         print(error)
 
+# ============================================================
+# SAVE REGISTRATION AS PNG
+#
+# Gray  = CT target
+# Green = US after predicted GeoTransformer transform
+# ============================================================
 
+def save_registration_png(
+    source,
+    target,
+    T_pred,
+    case_name,
+    output_dir,
+):
+
+    import matplotlib
+
+    # Important for remote server: no graphical window required
+    matplotlib.use("Agg")
+
+    import matplotlib.pyplot as plt
+
+    source = np.asarray(
+        source,
+        dtype=np.float64,
+    )
+
+    target = np.asarray(
+        target,
+        dtype=np.float64,
+    )
+
+    # --------------------------------------------------------
+    # Apply GeoTransformer predicted transform to US
+    # --------------------------------------------------------
+
+    predicted_source = apply_transform_np(
+        source,
+        T_pred,
+    )
+
+    # --------------------------------------------------------
+    # Create figure
+    # --------------------------------------------------------
+
+    fig = plt.figure(
+        figsize=(10, 9)
+    )
+
+    ax = fig.add_subplot(
+        111,
+        projection="3d",
+    )
+
+    # --------------------------------------------------------
+    # CT TARGET
+    # --------------------------------------------------------
+
+    ax.scatter(
+        target[:, 0],
+        target[:, 1],
+        target[:, 2],
+        s=1,
+        c="gray",
+        alpha=0.35,
+        label="CT target",
+    )
+
+    # --------------------------------------------------------
+    # US AFTER PREDICTED TRANSFORMATION
+    # --------------------------------------------------------
+
+    ax.scatter(
+        predicted_source[:, 0],
+        predicted_source[:, 1],
+        predicted_source[:, 2],
+        s=5,
+        c="green",
+        alpha=0.9,
+        label="US after T_pred",
+    )
+
+    # Window/image title = exact case name
+    ax.set_title(
+        case_name
+    )
+
+    ax.set_xlabel("X")
+    ax.set_ylabel("Y")
+    ax.set_zlabel("Z")
+
+    ax.legend()
+
+    # --------------------------------------------------------
+    # SAME PHYSICAL SCALE ON X/Y/Z
+    # --------------------------------------------------------
+
+    all_points = np.vstack(
+        [
+            target,
+            predicted_source,
+        ]
+    )
+
+    mins = all_points.min(
+        axis=0
+    )
+
+    maxs = all_points.max(
+        axis=0
+    )
+
+    center = (
+        mins + maxs
+    ) / 2.0
+
+    radius = (
+        np.max(
+            maxs - mins
+        )
+        / 2.0
+    )
+
+    ax.set_xlim(
+        center[0] - radius,
+        center[0] + radius,
+    )
+
+    ax.set_ylim(
+        center[1] - radius,
+        center[1] + radius,
+    )
+
+    ax.set_zlim(
+        center[2] - radius,
+        center[2] + radius,
+    )
+
+    # Fixed viewing angle for all cases
+    ax.view_init(
+        elev=20,
+        azim=-60,
+    )
+
+    # --------------------------------------------------------
+    # SAVE
+    # --------------------------------------------------------
+
+    output_path = os.path.join(
+        output_dir,
+        f"{case_name}.png",
+    )
+
+    plt.tight_layout()
+
+    plt.savefig(
+        output_path,
+        dpi=250,
+        bbox_inches="tight",
+    )
+
+    plt.close(
+        fig
+    )
+
+    print(
+        f"Saved visualization: "
+        f"{output_path}"
+    )
 # ============================================================
 # MAIN
 # ============================================================
@@ -1251,19 +1432,18 @@ def main():
                 np.float64
             )
         )
-
         # ====================================================
-        # VISUALIZE THIS CASE AS MESH
+        # SAVE VISUALIZATION OF THIS CASE
         # ====================================================
 
-        visualize_registration(
+        save_registration_png(
             source=sample["source"],
             target=sample["target"],
             T_pred=T_pred,
-            T_gt=None,
-            title=sample["case_name"],
-            show_ground_truth=False,
+            case_name=sample["case_name"],
+            output_dir=PNG_DIR,
         )
+        
 
 
         # ====================================================
