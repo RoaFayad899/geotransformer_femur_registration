@@ -1256,11 +1256,13 @@ def main():
         # VISUALIZE THIS CASE AS MESH
         # ====================================================
 
-        visualize_registration_as_mesh(
+        visualize_registration(
             source=sample["source"],
             target=sample["target"],
             T_pred=T_pred,
-            case_name=sample["case_name"],
+            T_gt=None,
+            title=sample["case_name"],
+            show_ground_truth=False,
         )
 
 
