@@ -58,7 +58,7 @@ INFERENCE_DATASET_NAME = (                                                   ###
 )
 
 EXPERIMENT_NAME = (                                                          ##########################################
-    "exp_fulldataset_best4stages_2000_large_00"
+    "exp_fulldataset_best4stages_8000_large_new_01"
 )
 
 
@@ -96,8 +96,8 @@ SHOW_GROUND_TRUTH = True
 # PATHS
 # ============================================================
 
-PROJECT_ROOT = (
-    "/home/roa.fayad/"
+PROJECT_ROOT = (                                                                     ##################################
+    "/home/roa.fayad/git/"
     "geotransformer_femur_registration"
 )
 
@@ -1263,10 +1263,9 @@ def main():
     # LOAD TRAINED MODEL
     # ========================================================
 
-    checkpoint_path = (
-        find_checkpoint(
-            SNAPSHOT_DIR
-        )
+    checkpoint_path = os.path.join(
+        SNAPSHOT_DIR,
+        "epoch-124.pth.tar"
     )
 
     model = (
@@ -1443,7 +1442,7 @@ def main():
             case_name=sample["case_name"],
             output_dir=PNG_DIR,
         )
-        
+
 
 
         # ====================================================
