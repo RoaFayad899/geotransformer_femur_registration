@@ -1,4 +1,31 @@
-# inference_real_us.py
+# ============================================================
+# inference_real_us_originalscale.py
+#
+# PURE INFERENCE ONLY -- NO TRAINING
+#
+# New dataset structure:
+#   1 original aligned case
+#   3 translation-only cases
+#   3 rotation-only cases
+#   3 combined cases
+#   = 10 samples total
+#
+# IMPORTANT:
+# - source = perturbed real US
+# - target = fixed CT
+# - T_gt maps source -> reference alignment
+#
+# The original_aligned case has:
+#   T_extra = Identity
+#   T_gt    = Identity
+#
+# Main aggregate statistics are calculated ONLY on the
+# 9 artificially perturbed samples so they remain comparable
+# with the previous 9-case inference experiments.
+#
+# The original aligned case is reported separately.
+# ============================================================
+
 
 import os
 import re
@@ -21,13 +48,30 @@ from model import create_model
 # CHANGE ONLY THESE TWO FOR EACH RUN
 # ============================================================
 
-INFERENCE_DATASET_NAME = (
-    "geotransformer_dataset_inference_USDistaltoCT"
+# ------------------------------------------------------------
+# PROXIMAL example
+# ------------------------------------------------------------
+
+INFERENCE_DATASET_NAME = (                                                   #######################################
+    "geotransformer_dataset_inference_"
+    "USProximal_to_CTIntact_originalscale_new"
 )
 
-EXPERIMENT_NAME = (
+EXPERIMENT_NAME = (                                                          ##########################################
     "exp_fulldataset_best4stages_2000_large_00"
 )
+
+
+# ------------------------------------------------------------
+# DISTAL:
+#
+# Replace INFERENCE_DATASET_NAME above with:
+#
+# INFERENCE_DATASET_NAME = (
+#     "geotransformer_dataset_inference_"
+#     "USDistal_to_CTIntact_originalscale_new"
+# )
+# ------------------------------------------------------------
 
 
 # ============================================================
@@ -44,6 +88,7 @@ VISUALIZE_BEST = True
 # False:
 #   Gray  = CT target
 #   Green = predicted US
+
 SHOW_GROUND_TRUTH = True
 
 
@@ -89,14 +134,9 @@ os.makedirs(
 # ============================================================
 # KPConv NEIGHBOR LIMITS
 # ============================================================
-#
-# IMPORTANT:
-# Ideally use exactly the values printed during training:
-#
-#     Calibrate neighbors: [...]
-#
-# Replace these if your training values were different.
-# ============================================================
+
+# Keep exactly the same values used by your previous
+# inference script / training configuration.
 
 NEIGHBOR_LIMITS = [
     67,
@@ -135,14 +175,13 @@ def find_checkpoint(snapshot_dir):
         )
 
     if len(files) == 0:
-
         raise FileNotFoundError(
             f"\nNo checkpoint found in:\n"
             f"{snapshot_dir}"
         )
 
     # --------------------------------------------------------
-    # Prefer a checkpoint explicitly containing "best"
+    # Prefer checkpoint explicitly containing "best"
     # --------------------------------------------------------
 
     best_files = [
@@ -152,14 +191,13 @@ def find_checkpoint(snapshot_dir):
     ]
 
     if len(best_files) > 0:
-
         return max(
             best_files,
             key=os.path.getmtime,
         )
 
     # --------------------------------------------------------
-    # Otherwise select highest epoch number
+    # Otherwise highest epoch
     # --------------------------------------------------------
 
     def extract_epoch(path):
@@ -197,12 +235,7 @@ def find_checkpoint(snapshot_dir):
     )
 
     if epoch_files[-1][0] >= 0:
-
         return epoch_files[-1][1]
-
-    # --------------------------------------------------------
-    # Fallback: newest checkpoint
-    # --------------------------------------------------------
 
     return max(
         files,
@@ -227,11 +260,8 @@ def load_checkpoint(
         isinstance(checkpoint, dict)
         and "model" in checkpoint
     ):
-
         state_dict = checkpoint["model"]
-
     else:
-
         state_dict = checkpoint
 
     model.load_state_dict(
@@ -271,14 +301,13 @@ def load_npz_sample(file_path):
             )
 
     # --------------------------------------------------------
-    # Convention:
+    # Convention
     #
-    # source = perturbed US
+    # source = perturbed real US
     # target = fixed CT
     #
     # T_gt maps:
-    #
-    # source --> target
+    # source --> reference alignment
     # --------------------------------------------------------
 
     src_points = np.asarray(
@@ -304,7 +333,6 @@ def load_npz_sample(file_path):
         src_points.ndim != 2
         or src_points.shape[1] != 3
     ):
-
         raise ValueError(
             f"source must have shape (N,3), "
             f"got {src_points.shape}"
@@ -314,21 +342,19 @@ def load_npz_sample(file_path):
         ref_points.ndim != 2
         or ref_points.shape[1] != 3
     ):
-
         raise ValueError(
             f"target must have shape (M,3), "
             f"got {ref_points.shape}"
         )
 
     if transform.shape != (4, 4):
-
         raise ValueError(
             f"T_gt must have shape (4,4), "
             f"got {transform.shape}"
         )
 
     # --------------------------------------------------------
-    # Metadata
+    # Sample ID
     # --------------------------------------------------------
 
     if "sample_id" in data:
@@ -347,6 +373,37 @@ def load_npz_sample(file_path):
             )[0]
         )
 
+    # --------------------------------------------------------
+    # NEW:
+    # case_name
+    #
+    # Allows us to identify:
+    # original_aligned
+    # translation_...
+    # rotation_...
+    # combined_...
+    # --------------------------------------------------------
+
+    if "case_name" in data:
+
+        case_name = str(
+            np.asarray(
+                data["case_name"]
+            ).item()
+        )
+
+    else:
+
+        case_name = (
+            os.path.splitext(
+                os.path.basename(file_path)
+            )[0]
+        )
+
+    # --------------------------------------------------------
+    # Normalization scale
+    # --------------------------------------------------------
+
     if "normalization_scale" in data:
 
         normalization_scale = float(
@@ -361,6 +418,10 @@ def load_npz_sample(file_path):
 
         normalization_scale = np.nan
 
+    # --------------------------------------------------------
+    # Translation magnitude
+    # --------------------------------------------------------
+
     if "translation_magnitude" in data:
 
         translation_magnitude = float(
@@ -374,6 +435,10 @@ def load_npz_sample(file_path):
     else:
 
         translation_magnitude = np.nan
+
+    # --------------------------------------------------------
+    # Rotation angle
+    # --------------------------------------------------------
 
     if "rotation_angle_deg" in data:
 
@@ -403,6 +468,9 @@ def load_npz_sample(file_path):
         "sample_id":
             sample_id,
 
+        "case_name":
+            case_name,
+
         "normalization_scale":
             normalization_scale,
 
@@ -429,7 +497,7 @@ def prepare_geotransformer_input(
     transform = sample["T_gt"]
 
     # --------------------------------------------------------
-    # GeoTransformer starts from constant features
+    # Constant point features
     # --------------------------------------------------------
 
     src_feats = np.ones(
@@ -473,15 +541,7 @@ def prepare_geotransformer_input(
     }
 
     # --------------------------------------------------------
-    # Generate:
-    #
-    # points
-    # neighbors
-    # subsampling
-    # upsampling
-    # lengths
-    #
-    # required by KPConv
+    # KPConv preprocessing
     # --------------------------------------------------------
 
     data_dict = (
@@ -603,18 +663,12 @@ def compute_rmse(
     T_pred,
 ):
 
-    # --------------------------------------------------------
-    # Where should every source point be?
-    # --------------------------------------------------------
-
-    gt_points = apply_transform_np(
-        source_points,
-        T_gt,
+    gt_points = (
+        apply_transform_np(
+            source_points,
+            T_gt,
+        )
     )
-
-    # --------------------------------------------------------
-    # Where did GeoTransformer put it?
-    # --------------------------------------------------------
 
     predicted_points = (
         apply_transform_np(
@@ -648,19 +702,7 @@ def safe_mm(
     if np.isnan(
         normalization_scale
     ):
-
         return np.nan
-
-    # --------------------------------------------------------
-    # If:
-    #
-    # x_norm = (x_mm - center) / scale
-    #
-    # then:
-    #
-    # distance_mm =
-    # distance_normalized * scale
-    # --------------------------------------------------------
 
     return float(
         normalized_value
@@ -692,7 +734,7 @@ def visualize_registration(
     )
 
     # --------------------------------------------------------
-    # Apply predicted transformation to US
+    # Predicted US
     # --------------------------------------------------------
 
     predicted_source = (
@@ -716,7 +758,6 @@ def visualize_registration(
         )
     )
 
-    # Gray
     target_pcd.paint_uniform_color(
         [
             0.65,
@@ -739,7 +780,6 @@ def visualize_registration(
         )
     )
 
-    # Green
     predicted_pcd.paint_uniform_color(
         [
             0.10,
@@ -754,7 +794,7 @@ def visualize_registration(
     ]
 
     # --------------------------------------------------------
-    # Optional GT transformed US
+    # Ground-truth US
     # --------------------------------------------------------
 
     if (
@@ -779,7 +819,6 @@ def visualize_registration(
             )
         )
 
-        # Blue
         gt_pcd.paint_uniform_color(
             [
                 0.10,
@@ -793,24 +832,17 @@ def visualize_registration(
         )
 
     print("\nVisualization colors:")
-    print(
-        "Gray  = CT target"
-    )
+    print("Gray  = CT target")
     print(
         "Green = US transformed "
         "with T_pred"
     )
 
     if show_ground_truth:
-
         print(
             "Blue  = US transformed "
             "with T_gt"
         )
-
-    # --------------------------------------------------------
-    # Open interactive viewer
-    # --------------------------------------------------------
 
     try:
 
@@ -876,14 +908,19 @@ def main():
         EXPERIMENT_NAME
     )
 
+
     # ========================================================
     # CONFIG
     # ========================================================
 
     cfg = make_cfg()
 
+
     # ========================================================
-    # FIND THE 9 NPZ FILES
+    # FIND ALL NPZ FILES
+    #
+    # Expected for the new datasets:
+    # 10 samples
     # ========================================================
 
     npz_files = sorted(
@@ -920,8 +957,9 @@ def main():
             ),
         )
 
+
     # ========================================================
-    # LOAD MODEL
+    # LOAD TRAINED MODEL
     # ========================================================
 
     checkpoint_path = (
@@ -943,7 +981,9 @@ def main():
         )
     )
 
+    # PURE INFERENCE
     model.eval()
+
 
     # ========================================================
     # STORAGE
@@ -955,8 +995,9 @@ def main():
 
     best_visualization = None
 
+
     # ========================================================
-    # LOOP THROUGH THE 9 TEST CASES
+    # LOOP THROUGH ALL 10 TEST CASES
     # ========================================================
 
     for index, file_path in enumerate(
@@ -985,8 +1026,13 @@ def main():
             )
         )
 
+        print(
+            "Case          :",
+            sample["case_name"]
+        )
+
         # ----------------------------------------------------
-        # Prepare input
+        # Prepare GeoTransformer input
         # ----------------------------------------------------
 
         data_dict = (
@@ -1003,7 +1049,7 @@ def main():
         )
 
         # ----------------------------------------------------
-        # INFERENCE
+        # PURE INFERENCE
         # ----------------------------------------------------
 
         with torch.no_grad():
@@ -1015,7 +1061,7 @@ def main():
             )
 
         # ----------------------------------------------------
-        # Move results back to CPU
+        # CPU
         # ----------------------------------------------------
 
         output_dict = (
@@ -1029,31 +1075,47 @@ def main():
                 data_dict
             )
         )
+
+
         # ====================================================
-        # DEBUG: COARSE vs FINE CORRESPONDENCES
+        # COARSE / FINE CORRESPONDENCES
         # ====================================================
 
         num_coarse_corr = len(
             np.asarray(
-                output_dict["ref_node_corr_indices"]
+                output_dict[
+                    "ref_node_corr_indices"
+                ]
             ).reshape(-1)
         )
 
         corr_scores_array = np.asarray(
-            output_dict["corr_scores"]
+            output_dict[
+                "corr_scores"
+            ]
         )
 
         if corr_scores_array.ndim == 0:
             num_fine_corr = 1
         else:
-            num_fine_corr = corr_scores_array.shape[0]
+            num_fine_corr = (
+                corr_scores_array.shape[0]
+            )
 
-        print(f"Coarse correspondences : {num_coarse_corr}")
-        print(f"Fine correspondences   : {num_fine_corr}")
+        print(
+            f"Coarse correspondences : "
+            f"{num_coarse_corr}"
+        )
 
-        # ----------------------------------------------------
-        # Predicted transform
-        # ----------------------------------------------------
+        print(
+            f"Fine correspondences   : "
+            f"{num_fine_corr}"
+        )
+
+
+        # ====================================================
+        # PREDICTED TRANSFORM
+        # ====================================================
 
         T_pred = np.asarray(
             output_dict[
@@ -1063,11 +1125,13 @@ def main():
         )
 
         T_gt = (
-            sample["T_gt"]
-            .astype(
+            sample[
+                "T_gt"
+            ].astype(
                 np.float64
             )
         )
+
 
         # ====================================================
         # METRICS
@@ -1108,15 +1172,29 @@ def main():
             normalization_scale,
         )
 
-        # ----------------------------------------------------
-        # Number of final correspondences
-        # ----------------------------------------------------
+
+        # ====================================================
+        # NUMBER OF FINAL CORRESPONDENCES
+        # ====================================================
 
         if "corr_scores" in output_dict:
-            corr_scores_array = np.asarray(output_dict["corr_scores"])
-            num_corr = 1 if corr_scores_array.ndim == 0 else corr_scores_array.shape[0]
+
+            corr_scores_array = np.asarray(
+                output_dict[
+                    "corr_scores"
+                ]
+            )
+
+            num_corr = (
+                1
+                if corr_scores_array.ndim == 0
+                else corr_scores_array.shape[0]
+            )
+
         else:
+
             num_corr = 0
+
 
         # ====================================================
         # SAVE BEST SAMPLE FOR VISUALIZATION
@@ -1131,6 +1209,11 @@ def main():
                 "sample_id":
                     sample[
                         "sample_id"
+                    ],
+
+                "case_name":
+                    sample[
+                        "case_name"
                     ],
 
                 "source":
@@ -1165,6 +1248,7 @@ def main():
                     rmse_mm,
             }
 
+
         # ====================================================
         # RESULT ROW
         # ====================================================
@@ -1174,6 +1258,12 @@ def main():
             "sample_id":
                 sample[
                     "sample_id"
+                ],
+
+            # NEW
+            "case_name":
+                sample[
+                    "case_name"
                 ],
 
             "file":
@@ -1219,8 +1309,9 @@ def main():
             row
         )
 
+
         # ====================================================
-        # SAVE PER-SAMPLE DETAILED RESULT
+        # SAVE PER-SAMPLE RESULT
         # ====================================================
 
         sample_result_path = (
@@ -1240,6 +1331,11 @@ def main():
             sample_id=
                 sample[
                     "sample_id"
+                ],
+
+            case_name=
+                sample[
+                    "case_name"
                 ],
 
             T_pred=
@@ -1298,6 +1394,7 @@ def main():
                 rmse_mm,
         )
 
+
         # ====================================================
         # PRINT SAMPLE RESULT
         # ====================================================
@@ -1305,6 +1402,11 @@ def main():
         print(
             f"\nSample        : "
             f"{sample['sample_id']}"
+        )
+
+        print(
+            f"Case          : "
+            f"{sample['case_name']}"
         )
 
         print(
@@ -1322,8 +1424,7 @@ def main():
         ):
 
             print(
-                "RTE mm        : "
-                "N/A"
+                "RTE mm        : N/A"
             )
 
         else:
@@ -1343,8 +1444,7 @@ def main():
         ):
 
             print(
-                "RMSE mm       : "
-                "N/A"
+                "RMSE mm       : N/A"
             )
 
         else:
@@ -1359,8 +1459,63 @@ def main():
             f"{num_corr}"
         )
 
+
+    # ========================================================
+    # NEW:
+    # SEPARATE ORIGINAL CASE FROM 9 PERTURBED CASES
+    # ========================================================
+
+    original_rows = [
+        row
+        for row in rows
+        if row[
+            "case_name"
+        ] == "original_aligned"
+    ]
+
+    perturbed_rows = [
+        row
+        for row in rows
+        if row[
+            "case_name"
+        ] != "original_aligned"
+    ]
+
+
+    print(
+        "\n========================================"
+    )
+
+    print(
+        "SAMPLE GROUPS"
+    )
+
+    print(
+        "========================================"
+    )
+
+    print(
+        "Total samples      :",
+        len(rows)
+    )
+
+    print(
+        "Original cases     :",
+        len(original_rows)
+    )
+
+    print(
+        "Perturbed cases    :",
+        len(perturbed_rows)
+    )
+
+
     # ========================================================
     # GLOBAL SUMMARY
+    #
+    # IMPORTANT:
+    # calculate mean/std/median ONLY over the 9 perturbed
+    # samples for comparison with your previous experiments.
     # ========================================================
 
     numeric_metrics = [
@@ -1376,6 +1531,7 @@ def main():
         "RMSE_mm",
     ]
 
+
     summary = {
 
         "dataset":
@@ -1389,14 +1545,77 @@ def main():
 
         "num_samples":
             len(rows),
+
+        "num_original_samples":
+            len(original_rows),
+
+        "num_perturbed_samples":
+            len(perturbed_rows),
     }
+
+
+    # --------------------------------------------------------
+    # Original aligned case stored separately
+    # --------------------------------------------------------
+
+    if len(original_rows) == 1:
+
+        original = original_rows[0]
+
+        summary[
+            "original_aligned"
+        ] = {
+
+            "RRE_deg":
+                original[
+                    "RRE_deg"
+                ],
+
+            "RTE_normalized":
+                original[
+                    "RTE_normalized"
+                ],
+
+            "RTE_mm":
+                original[
+                    "RTE_mm"
+                ],
+
+            "RMSE_normalized":
+                original[
+                    "RMSE_normalized"
+                ],
+
+            "RMSE_mm":
+                original[
+                    "RMSE_mm"
+                ],
+
+            "num_correspondences":
+                original[
+                    "num_correspondences"
+                ],
+        }
+
+    else:
+
+        summary[
+            "original_aligned"
+        ] = None
+
+
+    # --------------------------------------------------------
+    # Statistics ONLY for perturbed cases
+    # --------------------------------------------------------
 
     for metric in numeric_metrics:
 
         values = np.asarray(
             [
-                row[metric]
-                for row in rows
+                row[
+                    metric
+                ]
+                for row in perturbed_rows
             ],
             dtype=np.float64,
         )
@@ -1409,9 +1628,7 @@ def main():
             ]
         )
 
-        if len(
-            valid_values
-        ) > 0:
+        if len(valid_values) > 0:
 
             summary[
                 f"mean_{metric}"
@@ -1451,6 +1668,7 @@ def main():
                 f"median_{metric}"
             ] = None
 
+
     # ========================================================
     # SAVE CSV
     # ========================================================
@@ -1482,6 +1700,7 @@ def main():
             rows
         )
 
+
     # ========================================================
     # SAVE JSON
     # ========================================================
@@ -1509,8 +1728,62 @@ def main():
             indent=4,
         )
 
+
     # ========================================================
-    # PRINT FINAL SUMMARY
+    # PRINT ORIGINAL ALIGNED CASE SEPARATELY
+    # ========================================================
+
+    if len(original_rows) == 1:
+
+        original = original_rows[0]
+
+        print(
+            "\n"
+            + "=" * 80
+        )
+
+        print(
+            "ORIGINAL ALIGNED CASE "
+            "(NO ARTIFICIAL PERTURBATION)"
+        )
+
+        print(
+            "=" * 80
+        )
+
+        print(
+            f"RRE           : "
+            f"{original['RRE_deg']:.6f} deg"
+        )
+
+        print(
+            f"RTE norm      : "
+            f"{original['RTE_normalized']:.6f}"
+        )
+
+        print(
+            f"RTE mm        : "
+            f"{original['RTE_mm']:.6f} mm"
+        )
+
+        print(
+            f"RMSE norm     : "
+            f"{original['RMSE_normalized']:.6f}"
+        )
+
+        print(
+            f"RMSE mm       : "
+            f"{original['RMSE_mm']:.6f} mm"
+        )
+
+        print(
+            f"# correspond. : "
+            f"{original['num_correspondences']}"
+        )
+
+
+    # ========================================================
+    # PRINT FINAL SUMMARY FOR 9 PERTURBED CASES
     # ========================================================
 
     print(
@@ -1519,7 +1792,8 @@ def main():
     )
 
     print(
-        "FINAL SUMMARY"
+        "FINAL SUMMARY - "
+        "9 PERTURBED CASES ONLY"
     )
 
     print(
@@ -1542,8 +1816,13 @@ def main():
     )
 
     print(
-        f"Samples    : "
+        f"Total      : "
         f"{len(rows)}"
+    )
+
+    print(
+        f"Perturbed  : "
+        f"{len(perturbed_rows)}"
     )
 
     print(
@@ -1585,6 +1864,7 @@ def main():
             f"{summary['mean_RMSE_mm']:.6f} mm"
         )
 
+
     print(
         "\nSaved:"
     )
@@ -1596,6 +1876,7 @@ def main():
     print(
         json_path
     )
+
 
     # ========================================================
     # BEST REGISTRATION
@@ -1627,6 +1908,11 @@ def main():
         print(
             f"Sample : "
             f"{best['sample_id']}"
+        )
+
+        print(
+            f"Case   : "
+            f"{best['case_name']}"
         )
 
         print(
@@ -1684,6 +1970,11 @@ def main():
                     "sample_id"
                 ],
 
+            case_name=
+                best[
+                    "case_name"
+                ],
+
             source=
                 best[
                     "source"
@@ -1738,6 +2029,7 @@ def main():
             best_path
         )
 
+
         # ====================================================
         # VISUALIZE BEST
         # ====================================================
@@ -1774,7 +2066,7 @@ def main():
                 title=(
                     "Best GeoTransformer "
                     "Registration - "
-                    f"{best['sample_id']}"
+                    f"{best['case_name']}"
                 ),
 
                 show_ground_truth=
@@ -1789,5 +2081,3 @@ def main():
 if __name__ == "__main__":
 
     main()
-
-
