@@ -54,7 +54,7 @@ from model import create_model
 
 INFERENCE_DATASET_NAME = (                                                   #######################################
     "geotransformer_dataset_inference_"
-    "USProximal_to_CTIntact_originalscale_new"
+    "USDistal_to_CTIntact_originalscale_new"
 )
 
 EXPERIMENT_NAME = (                                                          ##########################################
