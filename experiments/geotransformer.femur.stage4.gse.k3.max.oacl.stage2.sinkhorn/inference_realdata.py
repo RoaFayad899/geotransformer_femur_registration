@@ -121,7 +121,7 @@ SNAPSHOT_DIR = os.path.join(
 
 RESULT_DIR = os.path.join(
     EXPERIMENT_ROOT,
-    "real_us_inference",
+    "real_us_inference_2",
     INFERENCE_DATASET_NAME,
 )
 
