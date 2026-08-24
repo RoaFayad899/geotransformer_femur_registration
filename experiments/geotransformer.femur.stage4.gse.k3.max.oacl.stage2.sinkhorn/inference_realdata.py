@@ -54,7 +54,7 @@ from model import create_model
 
 INFERENCE_DATASET_NAME = (                                                   #######################################
     "geotransformer_dataset_inference_"
-    "USDistal_to_CTIntact_originalscale_new"
+    "USProximal_to_CTIntact_originalscale_new"
 )
 
 EXPERIMENT_NAME = (                                                          ##########################################
@@ -121,7 +121,7 @@ SNAPSHOT_DIR = os.path.join(
 
 RESULT_DIR = os.path.join(
     EXPERIMENT_ROOT,
-    "real_us_inference_2",
+    "real_us_inference_Proximal",
     INFERENCE_DATASET_NAME,
 )
 
